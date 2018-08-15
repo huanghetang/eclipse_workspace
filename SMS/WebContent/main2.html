@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>商城管理主页</title>
+<link rel="stylesheet" type="text/css" href="themes/default/easyui.css">
+<link rel="stylesheet" type="text/css" href="themes/icon.css">
+<link rel="stylesheet" type="text/css" href="css/zTreeStyle.css">
+<script type="text/javascript" src="js/jquery-1.8.0.min.js"></script>
+<script type="text/javascript" src="js/jquery.easyui.min.js"></script>
+<script type="text/javascript" src="js/easyui-lang-zh_CN.js"></script>
+<script type="text/javascript" src="js/jquery.ztree.all-3.5.min.js"></script>
+<script type="text/javascript">
+// 第一步定义setting
+var setting = {
+		data: {
+			simpleData: {
+				enable: true
+			}
+		},
+		callback: {
+			onClick: function(event, treeId, treeNode, clickFlag){
+				
+				if(treeNode.page != null){
+					
+					var flag = $("#tt").tabs("exists",treeNode.name);
+					
+					if(flag){
+						$("#tt").tabs("select",treeNode.name);
+					}else{
+						$("#tt").tabs('add',{
+							title:treeNode.name,
+							selected:true,
+							// 菜单page属性值=选项卡内容
+							content:'<div style="width:100%;height:100%;overflow:hidden;">'
+								+ '<iframe src="'
+								+ treeNode.page
+								+ '" scrolling="auto" style="width:100%;height:100%;border:0;" ></iframe></div>',  
+							// 选项卡是否可以关闭
+							closable:true 
+						});
+					}
+				}
+			}
+		}
+	};
+// 第二步: 制作菜单内容
+var zNodes = [
+			{ id:1, pId:0,"name":"网站导航", open:true},
+			{ id:11,pId:1,"name":"google", "url":"http://g.cn", "target":"_blank"},
+			{ id:12,pId:1,"name":"baidu", "url":"http://baidu.com", "target":"_blank"},
+			{ id:13,pId:1,"name":"sina", "url":"http://www.sina.com.cn", "target":"_blank"}
+			]; 
+
+var zNodes2 =[
+ 			{ id:1, pId:0,name:"商品分类管理", open:true},
+ 			{ id:11,pId:1,name:"分类查询",page:'categorys.html'},
+ 			{ id:2, pId:0,name:"商品管理", open:true},
+ 			{ id:21,pId:2,name:"商品查询",page:'products.html'},
+ 			{ id:3, pId:0,name:"订单管理", open:true},
+ 			{ id:31,pId:3,name:"订单查询",page:'orders.html'},
+ 			{ id:32,pId:3,name:"待审核订单查询",page:"orderList2.html"},
+ 			{ id:4, pId:0,name:"广告栏管理",open:true},
+ 			{ id:41,pId:4,name:"商城轮播图管理",page:"image.html"},
+ 			{ id:42,pId:4,name:"广告管理",page:"adlist.html"}
+ 			];
+
+	// 第三步 页面加载完成 完成树制作!	
+	$(function(){
+		$.fn.zTree.init($("#treeDemo"),setting,zNodes);
+		$.fn.zTree.init($("#treeDemo2"), setting, zNodes2);
+	});
+
+</script>
+</head>
+<body class="easyui-layout">
+	<div data-options="region:'north',split:false" style="height: 90px;">
+		<table width="100%" height="90%"  border="0" cellspacing="0" cellpadding="0">
+			<tr>
+				<td width="100%" background="images/top_100.jpg"></td>
+			</tr>
+		</table>
+		<div id="userinfo" style="position: absolute;right: 60px;top:10px;">
+			    欢迎xxx登录！<br>
+			  <br>
+			  <a href='#'>用户退出</a>
+		</div>
+	</div>
+		
+	<!-- <div data-options="region:'south',title:'南部',split:false" style="height:100px;"></div> --> 
+	<div data-options="region:'south',split:false" style="height: 60px;">
+		<table width="100%" border="0" cellspacing="0" cellpadding="10" height="64">
+			<tr>
+				<td align="center" width="100%" style= valign="top">商城管理平台&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+					<font class="font12">
+						<a target="_blank" href="mailto:1243276550@qq.com">联系我们</a>
+					</font>
+				</td>
+			</tr>
+		</table>
+	</div>
+	
+	<!-- <div data-options="region:'east',iconCls:'icon-help',title:'East',split:false" style="width:100px;"></div> -->
+	<div class="easyui-accordion" data-options="region:'west',title:'商城数据管理'" style="width: 200px;">
+		<div title="搜索引擎">
+			<ul id="treeDemo" class="ztree"></ul>
+		</div>
+		<div title="商品管理" data-options="selected:true" style="padding: 10px;">
+			<ul id="treeDemo2" class="ztree"></ul>
+		</div>
+	</div>
+
+	<div id="tt" class="easyui-tabs" data-options="region:'center',title:'数据明细信息'" style="padding: 3px; background: #eee;">
+		<table id="DataGridID"></table>
+	</div>
+	
+</body>
+</html>

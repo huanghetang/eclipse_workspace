@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace：命名空间，用于隔离sql，还有一个很重要的作用，后面会讲 -->
+<mapper namespace="mapper.QueryVoMapper">
+<!--  根据用户名模糊查询用户信息，查询条件放到QueryVo的user属性中。 -->
+	<select id="findUserByQueryVo" parameterType="QueryVo" resultType="User">
+		select * from user where  username 
+		<!-- like "%"#{user.username}"%" -->
+		<!-- like "%${user.username}%" -->
+		 like '%${user.username}%'
+	</select>
+	
+	<!-- 需求:查询用户表数据条数 -->
+	<select id="findUserCount"  resultType="int">
+		select count(1) from user
+	</select>
+</mapper>

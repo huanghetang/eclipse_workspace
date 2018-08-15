@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.springframework.org/schema/beans" xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx" xmlns:aop="http://www.springframework.org/schema/aop" xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.2.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.2.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.2.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.2.xsd ">
+<!-- 开启注解模式 -->
+<context:component-scan base-package="vip.hht" />
+<!-- 加载数据库配置文件 -->
+<context:property-placeholder location="classpath:db.properties"/>
+	<!-- 配置数据源 -->
+	<bean name="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+		<property name="driverClass" value="${jdbc.driverClass}"></property>
+		<property name="jdbcUrl" value="${jdbc.jdbcUrl}"></property>
+		<property name="user" value="${jdbc.user}"></property>
+		<property name="password" value="${jdbc.password}"></property>
+	</bean>
+
+<!-- spring封装了基本的jdbc操作,daoImpl只需要 extends JdbcDaoSupport然后给JdbcDaoSupport这个类注入数据源就可以直接使用CURD方法  -->
+<bean name="userDaoImpl" class="vip.hht.dao.UserDaoImpl">
+	<property name="dataSource" ref="dataSource"></property>
+</bean>
+
+<!--  -->
+<bean name="userService" class="vip.hht.service.UserServiceImpl">
+	<property name="dao" ref="userDaoImpl"></property>
+	<!-- <property name="tt" ref="transactionTemplate"></property> -->
+</bean>
+
+<!-- 事务核心管理器,封装了所有事务,依赖连接池(封装了各种数据库事务的实现,这样把其他事务的实现交给spring统一管理)-->
+<bean name="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+	<property name="dataSource" ref="dataSource"></property>
+</bean>
+
+<!--1. 使用编码式 操作事务需要事务模板对象  spring封装事务管理器,产生事务模板,这样在service层只需要注入transactionTemplate事务模板对象,就可以用API操作事务了-->
+<bean name="transactionTemplate" class="org.springframework.transaction.support.TransactionTemplate">
+<property name="transactionManager" ref="transactionManager"></property>
+</bean>
+
+<!-- 2.使用xml配置管理事务 定义事务通知, 依赖事务核心管理器  (运用aop思想 在xml中配置产生代理类的方式对符和条件的方法统一管理,是对 1 编码式的升级,这样就不需要写代码了)-->
+<tx:advice id="txAdvice" transaction-manager="transactionManager">
+	<tx:attributes>
+	<!-- 以方法为单位 
+		isolation 隔离级别
+		propagation 传播行为
+		read-only 是否只读
+	-->
+		<tx:method name="transfer" isolation="REPEATABLE_READ" propagation="REQUIRED" read-only="false"/>
+		<tx:method name="save*" isolation="REPEATABLE_READ" propagation="REQUIRED" read-only="false"/>
+		<tx:method name="add*" isolation="REPEATABLE_READ" propagation="REQUIRED" read-only="false"/>
+		<tx:method name="update*" isolation="REPEATABLE_READ" propagation="REQUIRED" read-only="false"/>
+		<tx:method name="modify*" isolation="REPEATABLE_READ" propagation="REQUIRED" read-only="false"/>
+		<tx:method name="delete*" isolation="REPEATABLE_READ" propagation="REQUIRED" read-only="false"/>
+		<tx:method name="remove*" isolation="REPEATABLE_READ" propagation="REQUIRED" read-only="false"/>
+		<tx:method name="find*" isolation="REPEATABLE_READ" propagation="REQUIRED" read-only="true"/>
+		<tx:method name="get*" isolation="REPEATABLE_READ" propagation="REQUIRED" read-only="true"/>
+	
+	</tx:attributes>
+</tx:advice>
+
+<aop:config>
+	<!--定义一个切点表达式  -->
+	<aop:pointcut expression="execution(* vip.hht.service.*ServiceImpl.*(..))" id="txpc"/>
+	<!--切面配置 切面=通知+切点  -->
+	<aop:advisor advice-ref="txAdvice" pointcut-ref="txpc"/>
+</aop:config>
+
+</beans>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>订单查询</title>
+<link rel="stylesheet" type="text/css" href="themes/default/easyui.css">
+<link rel="stylesheet" type="text/css" href="themes/icon.css">
+<script type="text/javascript" src="js/jquery-1.8.0.min.js"></script>
+<script type="text/javascript" src="js/jquery.easyui.min.js"></script>
+<script type="text/javascript" src="js/easyui-lang-zh_CN.js"></script>
+<script type="text/javascript" src="js/dateformat.js"></script>
+<script type="text/javascript">
+	$(function(){
+		$("#dgID").datagrid({
+			url:'orderServlet?methodName=listOrder', // 通ajax完成数据库表的数据加载。
+            fit:true,				   // datagrid数据填充父容器
+            //fitColumns:true 
+            pagination:true,		   // 显示分页栏
+            rownumbers:true,
+            singleSelect:false,
+            pageList:[5,10,20],	       // 每页显示记录数
+			columns:[[ 
+					{field:'ck',checkbox:true},
+			  		{field:'id',title:'订单ID',width:270,align:'center'}, 
+			  		{field:'uid',title:'用户ID',width:100,align:'center'},
+			  		{field:'totalprice',title:'订单总金额',width:100,align:'center'},
+			  		{field:'address',title:'收货地址',width:240,align:'center'},
+/* 			  		{field:'acceptperson',title:'收货人',width:80,align:'center'},
+			  		{field:'telephone',title:'收货人电话',width:100,align:'center'}, */
+			  		{field:'status',title:'订单状态',width:60,align:'center'},
+			  		{field:'createtime',title:'创建时间',width:140,align:'center',formatter:formatDatebox}
+			  		]]
+		});
+
+		//  点击按钮提交表单 categoryForm
+		$('#btn').click(function(){
+			// submit the form
+	    	$('#categoryForm').submit();  
+			$('#Add').windows("close");
+		});
+		
+	});
+	
+</script>
+</head>
+<body>
+	<!-- datagrid 数据列表-->
+	<table id="dgID"></table>
+	
+	<!-- 添加窗体 -->
+	<div id="Add" data-options="iconCls:'icon-save',modal:true,closed:true,closable:true"
+		class="easyui-window" title="添加订单信息" style="width:600px; height: 400px">
+		<br>
+		<form id="categoryForm" method="post" action="orderServlet?methodName=addOrder">
+			<div>
+				<label for="name">分类名称：</label> <input type="text" name="cname"/>
+			</div>
+			<br>
+			<input type="button" value="提交" id="btn"/>
+		</form>
+	</div>
+	
+	<!-- 修改窗体 -->
+	
+	<div id="winupdate"
+		data-options="iconCls:'icon-save',modal:true,closed:true,closable:true"
+		class="easyui-window" title="修改订单信息"
+		style="width: 250px; height: 150px">
+		<br>
+		<form id="categoryUpdateForm" method="post" action="orderServlet?methodName=updateOrder">
+			<div>
+			     <input type="hidden" name="cid" id="cid"/>
+				<label for="name">订单名称</label> <input type="text" name="cname" id="cname"/>
+			</div>
+			<br>
+			<input  type="button" value="更新" id="btnUpdate" />
+		</form>
+	</div>
+	
+</body>
+</html>

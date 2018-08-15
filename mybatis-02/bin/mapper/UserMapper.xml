@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace：命名空间，用于隔离sql，还有一个很重要的作用，后面会讲 -->
+<mapper namespace="mapper.UserMapper">
+
+	<select id="findUserById" parameterType="Integer" resultType="User">
+		select * from user where id = #{vvv}
+	</select>
+	
+	<select id="findUserByName" parameterType="String" resultType="User">
+		select * from user where username like <!-- "%"#{haha}"%" --> '%${value}%'
+	</select>
+	
+	<update id="updateUser" parameterType="User">
+		update user set 
+		username=#{username}, sex = #{sex}, birthday = #{birthday},address = #{address}
+		where id = #{id}
+	</update>
+	<delete id="deleteUserById" parameterType="Integer">
+		delete from user where id = #{s}
+	</delete>
+	
+	<insert id="addUser" parameterType="pojo.User">
+		<selectKey keyProperty="id" order="AFTER" resultType="Integer">
+			select last_insert_id()
+		</selectKey>
+	 	insert into user(
+	 		username,sex,birthday,address
+	 	)values(
+	 		#{username},#{sex},#{birthday},#{address}
+	 	)
+	</insert>
+	
+	<sql id="userFields">
+		id,username,birthday,sex,address
+	</sql>
+	<!-- 根据性别和名字查询用户 -->
+	<select id="findUserBySexAndName" parameterType="user" resultType="user">
+		select <include refid="userFields"/> from user 
+			
+			<where>
+			<if test="sex!=null and sex !=''">
+				and sex = #{sex} 
+			</if>
+			<if test="username !=null and username!=''">
+				and username = #{username}
+			</if>
+			</where>
+	
+	</select>
+	<!-- 根据多个id查询用户信息 -->
+	<select id="findUsersByIds" parameterType="QueryVo" resultType="user">
+		select <include refid="userFields"/> from user
+		where
+			<foreach collection="idArrays" item="id" open="id in(" close=")" separator=",">
+				#{id}
+			</foreach>
+	</select>
+	
+		<!-- 根据多个id[] 数组查询用户信息 -->
+	<select id="findUsersByIdArrayList" parameterType="QueryVo" resultType="user">
+		select <include refid="userFields"/> from user
+		where
+			<foreach collection="idArrayList" item="idArray" open="id in(" close=")" separator=",">
+				<foreach collection="idArray" item="id" separator=",">
+					#{id}
+				</foreach>
+				
+			</foreach>
+	</select>
+	
+	<!-- 直接传入数组时,foreach collection属性值必须是array -->
+	<select id="findUsersByArray" parameterType="int[]" resultType="user">
+		select <include refid="userFields"/> from user
+			 where 
+		 	<foreach collection="array" item="id" open="id in(" close=")" separator=",">
+		 		#{id}
+		 	</foreach>
+	
+	</select>
+	
+	<!-- 直接传入List时,foreach标签 collection属性值只能是list -->
+	<select id="findUsersByList" parameterType="java.util.List" resultType="user">
+		select <include refid="userFields"/> from user
+		where
+			<foreach collection="list" item="id" open="id in(" close=")" separator="," >
+				#{id}
+			</foreach>
+	</select>
+	
+	
+	<resultMap type="user" id="userAndOrder">
+		<id column="userId" property="id"/>
+		<result column="username" property="username"/>
+		<result column="address" property="address"/>
+		<collection property="orderList" ofType="Order">
+			<id column="id" property="id"/>
+			<result column="number" property="number"/>
+			<result column="note" property="note"/>
+			<result column="createtime" property="createtime"/>
+			<result column="user_id" property="userId"/>
+		</collection>
+	
+	</resultMap>
+	<select id="findUserAndOrder" resultMap="userAndOrder" >
+			select o.id,o.number,o.note,o.createtime,o.user_id,u.id as userId,u.username,u.address   
+			from
+			  user u 
+			 left join
+			  orders o
+			  on o.user_id = u.id
+	</select>
+	
+
+</mapper>

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Basic Layout - jQuery EasyUI Demo</title>
+	
+<link rel="stylesheet" type="text/css" href="themes/default/easyui.css">
+<link rel="stylesheet" type="text/css" href="themes/icon.css">
+ <link rel="stylesheet" type="text/css" href="css/zTreeStyle.css">
+<script type="text/javascript" src="js/jquery-1.8.0.min.js"></script>
+<script type="text/javascript" src="js/jquery.easyui.min.js"></script>
+<script type="text/javascript" src="js/jquery.ztree.all-3.5.min.js"></script>
+<script type="text/javascript" src="js/easyui-lang-zh_CN.js"></script>
+<script type="text/javascript" src="js/jquery.ztree.all-3.5.min.js"></script>
+
+
+	  
+	  
+</head>
+
+<script type="text/javascript">
+
+
+//ztree配置文件
+var setting = {
+	//默认配置
+	data: {
+		simpleData: {
+			enable: true
+		}
+	},
+	//回调函数
+ 	callback: {
+		//菜单点击事件
+		onClick:function(event, treeId, treeNode,clickFlag) {
+			//如果菜单是文件夹就不打开选项卡
+			//如果选项卡已经打开(已经创建了),就选中,不然就打开
+			if(treeNode.page==null){
+				return;
+			}
+			if($("#tt").tabs("exists",treeNode.name)){//如果选项卡已存在
+				$("#tt").tabs("select",treeNode.name);//选中该选项卡
+			}else{//重新打开(创建)一个新的选项卡
+				//{}为选项卡对象,content为选项卡的内容
+				$('#tt').tabs('add',{
+					closable:true,
+				    title:treeNode.name,    
+				    content:'<div style="width:100%;height:100%;overflow:hidden;"><iframe src="'+treeNode.page+'" style="width:100%;height:100%;border=0"></div>'    
+				});  
+			}
+			
+			}
+	} 
+	
+	
+	
+};
+//ztree菜单json数据
+var zNodes =[
+	{ id:1, pId:0, name:"商品分类管理", open:true},
+	{ id:11, pId:1, name:"分类查询",page:"categoryList.html"},
+	{ id:2, pId:0, name:"商品管理",open:true},
+	{ id:21, pId:2, name:"商品查询",page:"productList.html"},
+	{ id:3, pId:0, name:"广告管理",open:true},
+	{ id:31, pId:3, name:"广告管理",page:"adlist.html"},
+	{ id:32, pId:3, name:"图片管理",page:"image.html"}
+];
+
+$(document).ready(function(){
+	$.fn.zTree.init($("#treeDemo"), setting, zNodes); 
+});
+
+
+
+
+</script>
+
+
+<body class="easyui-layout">
+		<div data-options="region:'north'" style="height:50px"></div>
+		<div data-options="region:'south',split:false" style="height:50px;"></div>
+		<div data-options="region:'west',split:true" title="管理菜单" style="width:200px;">
+			<div id="aa" class="easyui-accordion"  data-options="fit:true" style="width:300px;height:200px;">   
+			    <div title="商品管理" data-options="iconCls:'icon-save,selected:true'" style="overflow:auto;padding:10px;"> 
+			    	<!-- 树菜单 -->
+			      	<div class="zTreeDemoBackground left"  data-options="fit:true">
+						<ul id="treeDemo" class="ztree"></ul>
+					</div>
+			    
+			    </div>   
+			</div>  
+		
+	</div>
+	
+		<div data-options="region:'center',title:'显示内容',iconCls:'icon-ok'">
+			<!-- 选项卡 -->
+			<div id="tt" class="easyui-tabs" style="width:500px;height:250px;" data-options="fit:true">   
+			</div>
+
+		</div>
+
+</body>
+</html>

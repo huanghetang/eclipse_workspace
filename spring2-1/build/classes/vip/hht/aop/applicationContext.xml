@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://www.springframework.org/schema/beans" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.2.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.2.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.2.xsd ">
+	<!-- 组建扫描 为spring开启注解功能 -->
+	<context:component-scan base-package="vip.hht" />
+	
+	<!-- aop代理 -->
+	<aop:config>
+	<!-- 对切入点(需要被加强的方法)的过滤 -->
+		<aop:pointcut expression="execution( * vip.hht.aop.*ServiceImpl.*(..))" id="pc"/>
+		<!-- 切面(切入点+通知) 对需要被加强的方法进行哪些通知 -->
+		<aop:aspect ref="myAdvice">
+			<aop:before method="before" pointcut-ref="pc"/>
+			<aop:after-returning method="afterReturning" pointcut-ref="pc"/>
+			<aop:around method="around" pointcut-ref="pc"/> 
+			<aop:after-throwing method="afterException" pointcut-ref="pc"/>
+			<aop:after method="after" pointcut-ref="pc"/>
+		</aop:aspect>
+	
+	</aop:config>
+
+</beans>

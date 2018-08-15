@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<style type="text/css">
+body {
+  color: white;
+}
+</style>
+<script type="text/javascript" src="js/jquery-1.8.0.min.js"></script>
+<script type="text/javascript">
+	$(function(){
+		$("#bt").click(function(){
+			$.post("userServlet?methodName=login",{'email':$('#AdminUser').val(),'password':$('#pwd').val()},function(data){
+				if(data == "0"){
+					$("#submit_notice").html("<font color='red'>管理员登录失败</font>");
+					return;
+				}else{
+					location.href="main.html"; 
+				}
+			});			
+		
+		});
+	});
+
+
+</script>
+</head>
+<body style="background: #278296">
+<!-- <form method="post" action="userServlet?methodName=login" target="_parent" name='theForm' > -->
+<form method="post" target="_parent" name='theForm' >
+ <table cellspacing="0" cellpadding="0" style="margin-top: 100px" align="center">
+  <tr>
+    <td style="padding-left: 50px">
+      <table>
+      <tr>
+        <td>管理员姓名：</td>
+        <td>
+        	<input id="AdminUser" type="text" name="email" />
+        	<span id="username_notice" style="color:#FF0000"></span>
+        </td>
+      </tr>
+      <tr>
+        <td>管理员密码：</td>
+        <td><input id="pwd" type="password" name="password" /></td>
+      </tr>
+      <tr>
+      	<td>&nbsp;</td>
+      	<td>
+      		<input id="bt" type="button" value="进入管理中心" class="button" />
+      		&nbsp;&nbsp;&nbsp;<span id="submit_notice" style="color:#FF0000"></span>
+      	</td>
+      </tr>
+      </table>
+    </td>
+  </tr>
+  </table>
+  </form>
+</body>
+</html>

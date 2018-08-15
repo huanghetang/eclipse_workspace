@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Insert title here</title>
+<meta http-equiv="Content-Language" content="zh-cn">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="themes/default/easyui.css">
+<link rel="stylesheet" type="text/css" href="themes/icon.css">
+
+<script type="text/javascript" src="js/jquery-1.8.0.min.js"></script>
+<script type="text/javascript" src="js/jquery.easyui.min.js"></script>
+<script type="text/javascript" src="js/easyui-lang-zh_CN.js"></script>
+
+
+
+<script type="text/javascript">
+	function getLocalTimeByMillions(time){
+		var data = new Date();
+		data.getFullYear();
+	}
+
+
+$(function(){
+	
+	
+	
+	$('#dg').datagrid({  
+		
+		 onClickRow:function(rowIndex,rowData){
+			  //回显数据
+			  $("#id").val(rowData.id);
+			  $("#status").val(rowData.status);
+		  },
+		
+	    url:'orderServlet?method=listPendingOrder',
+	    fit:true,//填充父容器
+	    fitColumns:false,//列自适应当前行
+	    pagination:true,//分页
+	    singleSelect:true,
+	    pageList:[3,10,15,20],
+	    pageSize:3,//默认显示3条
+	    columns:[[  //列属性  
+	                /* id,uid,totalprice,address,acceptperson,telephone,status,createtime*/
+	        {field:'id',title:'订单号',fitColumns:true},    
+	        {field:'uid',title:'用户ID'},    
+	        {field:'totalprice',title:'订单总价',align:'right'},
+	        {field:'address',title:'收件人地址'}, 
+	        {field:'acceptperson',title:'收件人'}, 
+	        {field:'telephone',title:'手机号'}, 
+	        {field:'status',title:'订单状态'},
+	        {field:'createtime',title:'订单创建时间',
+	      
+	     
+
+	        }, 
+	    ]],
+	    //工具栏
+ 	    toolbar: [{
+			iconCls: 'icon-edit',
+			text:'修改订单状态',
+			handler: function(){
+				 $('#winupdate').window('open');
+
+			}
+		}] 
+	});  
+	
+	 $("#btnupdate").click(function(){
+		 
+		  $("#orderUpdateForm").submit(),
+		  $('#winupdate').window('close')
+	  });
+	
+	
+});
+
+
+
+
+</script>
+
+</head>
+<body>
+		<!-- 修改窗体 -->
+	<div id="winupdate"
+		data-options="iconCls:'icon-save',modal:true,closed:true,closable:true"
+		class="easyui-window" title="修改订单信息"
+		style="width: 250px; height: 150px">
+		<br>
+		<form id="orderUpdateForm" method="post" action="orderServlet?method=updateOrderStatus">
+			<div>
+				<input id="id" type="hidden" name="id"></input>
+				<label for="name">状态信息</label> <input id="status" type="text" name="status" />
+			</div>
+			<br>
+			<input id="btnupdate" type="button" value="同意退货" />
+		</form>
+	</div>
+
+
+
+
+
+<table id="dg"></table>  
+
+</body>
+</html>

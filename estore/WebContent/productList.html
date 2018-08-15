@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Insert title here</title>
+<meta http-equiv="Content-Language" content="zh-cn">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="themes/default/easyui.css">
+<link rel="stylesheet" type="text/css" href="themes/icon.css">
+
+<script type="text/javascript" src="js/jquery-1.8.0.min.js"></script>
+<script type="text/javascript" src="js/jquery.easyui.min.js"></script>
+<script type="text/javascript" src="js/easyui-lang-zh_CN.js"></script>
+<!-- 引入日期格式化js   formatDatebox-->
+<script type="text/javascript" src="js/dataFormat.js"></script>
+
+
+<script type="text/javascript">
+	function getLocalTimeByMillions(time){
+		var data = new Date();
+		data.getFullYear();
+	}
+
+
+$(function(){
+	$('#dg').datagrid({    
+	    url:'product.do?method=productList',
+	    fit:true,//填充父容器
+	    fitColumns:false,//列自适应当前行
+	    pagination:true,//分页
+	    pageList:[3,10,15,20],
+	    pageSize:3,//默认显示3条
+	    columns:[[  //列属性  
+	        {field:'pid',title:'pid',fitColumns:true},    
+	        {field:'pname',title:'pname'},    
+	        {field:'market_price',title:'market_price',align:'right'},
+	        {field:'pnum',title:'pnum'}, 
+	        {field:'shop_price',title:'shop_price'}, 
+	        {field:'pimage',title:'pimage'}, 
+	        {field:'pdate',title:'创建日期',
+	        	formatter: formatDatebox
+	        }, 
+	        {field:'is_hot',title:'is_hot',
+	        	formatter: function(value,row,index){//显示格式化
+					if (value==1){
+						return '是';
+					} else {
+						return '否';
+					}
+				}
+	        }, 
+	        {field:'pdesc',title:'pdesc'}, 
+	        {field:'pflag',title:'pflag'}, 
+	        {field:'cid',title:'cid'}
+	    ]],
+	    //工具栏
+	    toolbar: [{
+			iconCls: 'icon-add',
+			handler: function(){
+				alert('添加按钮');
+				
+			
+			
+			
+			}
+		},'-',{
+			iconCls: 'icon-remove',
+			handler: function(){alert('删除按钮')}
+		}]
+
+	});  
+	
+	
+});
+
+
+
+
+</script>
+
+</head>
+<body>
+<table id="dg"></table>  
+
+</body>
+</html>

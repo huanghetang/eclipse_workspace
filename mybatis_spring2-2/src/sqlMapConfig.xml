@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+<!-- 别名 -->
+<typeAliases>
+<package name="vip.hht.ssm.po"/>
+</typeAliases>
+
+<!--配置mapper文件的位置 -->
+<mappers>
+<!-- <mapper resource="user.xml"/> -->
+<package name="vip.hht.ssm.mapper"/>
+</mappers>
+
+
+</configuration>

@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>产品分类</title>
+<link rel="stylesheet" type="text/css" href="themes/default/easyui.css">
+<link rel="stylesheet" type="text/css" href="themes/icon.css">
+<script type="text/javascript" src="js/jquery-1.8.0.min.js"></script>
+<script type="text/javascript" src="js/jquery.easyui.min.js"></script>
+<script type="text/javascript" src="js/easyui-lang-zh_CN.js"></script>
+
+<script type="text/javascript">
+	$(function(){
+		$("#dgID").datagrid({
+			url:'categoryServlet?methodName=listCategory', // 通ajax完成数据库表的数据加载。
+            fit:true,				   // datagrid数据填充父容器
+            /* fitColumns:true */
+            pagination:true,		   // 显示分页栏
+            rownumbers:true,
+            singleSelect:false,
+            pageList:[5,10,20],	       // 每页显示记录数
+			columns:[[ 
+					{field:'ck',checkbox:true},
+			  		{field:'cid',title:'分类编号',width:545,align:'center'}, 
+			  		{field:'cname',title:'分类名称',width:545,align:'center'}
+			  		]],
+			toolbar:[	 // 工具栏	
+			        {  	
+					  	iconCls: 'icon-add', 
+					  	text:'添加',
+					  	handler: function(){
+					  		$('#Add').window('open');  // open a window   
+						}  	
+				  	},'-',
+				  	{  		
+					 	iconCls: 'icon-edit',  		
+					  	text:'编辑',
+					  	handler: function(rowIndex,rowData){
+					  		var selectedRows = $('#dgID').datagrid('getSelections');  //获取选中行    
+					    	if(selectedRows){
+					    		
+					    		if(selectedRows.length > 1){
+						    		$.messager.alert('消息','不能编辑多条数据','warning');
+						    		return;
+					    		}
+					    		if(selectedRows.length < 1){
+						    		$.messager.alert('消息','未选中数据','warning');
+						    		return;
+					    		}
+					    	}
+					    	
+							$('#winupdate').window('open'); 
+							$("#cname").val(selectedRows[0].cname);	
+							$("#cid").val(selectedRows[0].cid);
+						}  	
+					 },'-',
+					 {  		
+						  iconCls: 'icon-remove',  		
+						  text:'删除',
+						  handler: function(){
+							  var selectedRows = $('#dgID').datagrid('getSelections');  //获取选中行    
+					    	  if(selectedRows){
+					    		  //未选中数据
+					    		  if(selectedRows.length < 1){
+						    		  $.messager.alert('消息','未选中数据','warning');
+						    		  return;
+					    		  }
+					    	  }
+							  $.messager.confirm('确认','您确认想要删除记录吗？',function(r){    
+								    if (r){    
+								    	//仅处理单行记录 singleSelect:true,
+								    	/* var selectedRow = $('#dgID').datagrid('getSelected');  //获取选中行    
+								    	if(selectedRow){
+								    		$.post("deleteCategoryServlet",{"cid":selectedRow.cid},function(){
+								    			alert('删除成功');
+								    		});
+						                    //页面删除数据
+								    		var rowIndex = $('#dgID').datagrid('getRowIndex',selectedRow);
+						                    $('#dgID').datagrid('deleteRow',rowIndex);
+						                  	//删除后重新加载下
+						                    $('#dgID').datagrid('reload');
+								    	}  */
+								    	//处理多行删除 singleSelect:false,
+								    	if(selectedRows){
+								    		//拼接字符
+								    		var str = "";
+								    		for(var i = 0; i < selectedRows.length;i++){
+								    			str = selectedRows[i].cid + "," + str;
+								    		}
+								    		//处理格式
+								    		var cid = str.substring(0, str.length - 1);
+								    		//发送ajax请求
+								    		$.post("categoryServlet?methodName=deleteCategory",{"cid":cid},function(){
+								    			$.messager.show({
+								    				title:'提示',
+								    				msg:'分类删除成功',
+								    				timeout:3000,
+								    				showType:'slide'
+								    			});
+								    		});
+						                    //页面删除数据
+						                    $('#dgID').datagrid('clearSelections');
+						                  	//删除后重新加载下
+						                    $('#dgID').datagrid('reload');
+								    	}
+								    }    
+							  });  
+						  } 
+					 },'-',
+					 {
+							iconCls: 'icon-help',
+							handler: function(){
+								alert('帮助按钮')
+							}
+					 }
+					 ],
+		
+		
+			//添加双击事件,弹出修改窗口
+			onDblClickRow:function(rowIndex, rowData){
+				$('#winupdate').window('open');
+				$("#cid").val(rowData.cid);	
+				$("#cname").val(rowData.cname);	
+				/* //赋值
+				//$('#ccid').combobox('setValue',rowData.cid);
+				//$("#ccid").val(rowData.cid); */
+			}
+		});
+
+		//  点击按钮提交表单 categoryForm
+		$('#btn').click(function(){
+			// submit the form
+	    	$('#categoryForm').submit();  
+			$('#Add').windows("close");
+		});
+		
+	//  点击按钮提交表单 categoryForm
+		$('#btnUpdate').click(function(){
+			// submit the form
+	    	$('#categoryUpdateForm').submit();  
+			$('#winupdate').windows("close");
+		});
+	});
+	
+</script>
+</head>
+<body>
+	<!-- datagrid 数据列表-->
+	<table id="dgID"></table>
+	
+	<!-- 添加窗体 -->
+	<div id="Add" data-options="iconCls:'icon-save',modal:true,closed:true,closable:true"
+		class="easyui-window" title="添加分类信息" style="width:400px; height: 250px">
+		<br>
+		<form id="categoryForm" method="post" action="categoryServlet?methodName=addCategory">
+			<div>
+				<label for="name">分类名称：</label> <input type="text" name="cname"/>
+			</div>
+			<br>
+			<input type="button" value="提交" id="btn"/>
+		</form>
+	</div>
+	
+	<!-- 修改窗体 -->
+	
+	<div id="winupdate"
+		data-options="iconCls:'icon-save',modal:true,closed:true,closable:true"
+		class="easyui-window" title="修改分类信息"
+		style="width:400px; height: 250px">
+		<br>
+		<form id="categoryUpdateForm" method="post" action="categoryServlet?methodName=updateCategory">
+			<div>
+			     <input type="hidden" name="cid" id="cid"/>
+				<label for="name">分类名称</label> <input type="text" name="cname" id="cname"/>
+			</div>
+			<br>
+			<input type="button" value="更新" id="btnUpdate" />
+		</form>
+	</div>
+	
+</body>
+</html>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.springframework.org/schema/beans" xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.2.xsd ">
+
+<bean name="user1" class="vip.hht.pojo.User" scope="singleton">
+	<property name="name" value="景甜"/>
+	<property name="age" value="18"/>
+</bean>
+
+<bean name="user2" class="vip.hht.pojo.User" >
+	<constructor-arg name="name" value="景甜2"/>
+	<constructor-arg name="age" value="19"/>
+</bean>
+
+
+<bean name="user3" class="vip.hht.pojo.User">
+	<constructor-arg name="name" value="景甜3"/>
+	<constructor-arg name="age" value="20"/>
+	<property name="beauties">
+		<array>
+			<value>景甜</value>
+			<value>迪丽热巴</value>
+			<value>古力娜扎</value>
+		</array>
+	</property>
+	
+	<property name="beautyList">
+		<list>
+			<value>景甜</value>
+			<value>迪丽热巴</value>
+			<value>古力娜扎</value>
+		</list>
+	</property>
+	
+	<property name="beautyMap">
+		<map>
+			<entry key="景甜" value="165"/> 
+			<entry key="迪丽热巴" value="166"/> 
+			<entry key="古力娜扎" value="167"/> 
+		</map>
+	
+	</property>
+</bean>
+
+</beans>

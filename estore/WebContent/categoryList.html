@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+
+
+
+<link rel="stylesheet" type="text/css" href="themes/default/easyui.css">
+<link rel="stylesheet" type="text/css" href="themes/icon.css">
+<script type="text/javascript" src="js/jquery-1.8.0.min.js"></script>
+<script type="text/javascript" src="js/jquery.easyui.min.js"></script>
+
+<script type="text/javascript">
+	$(function(){
+		//初始化datagrid数据表格
+		$('#dg').datagrid({
+			pageSize:10,//初始默认每页多少条数据
+			pageList:[10,15,20],//分页选择
+			pagination:true,//分页
+			fit:true,//填充父元素
+			fitColumns:true,//列自适应当前行
+		    url:'category.do?method=listCategory',   //json来源  
+		    //列的映射json的key
+		    columns:[[    
+		        {field:'cid',title:'cid',checkbox:true,align:'center'},    
+		        {field:'cname',title:'分类名称',width:100,align:'center'}  
+		    ]],
+		    //初始化工具栏
+		    toolbar: [{
+				iconCls: 'icon-edit',
+				handler: function(){alert('编辑按钮')}
+			},'-',{
+				iconCls: 'icon-add',//添加按钮
+				handler: function(){
+					$('#win').window('open');  
+				}
+			},'-',{
+				iconCls: 'icon-remove',
+				handler: function(){
+				//获取所有选中行
+				var elements = $('#dg').datagrid('getSelections');
+				var cid ="";
+				//遍历,拼接cid字符串
+				$(elements).each(function(i){
+					if(i==0){
+						cid +=this.cid;
+					}else{
+						cid +=","+this.cid;
+					}
+				});
+				//alert(cid);
+				//ajax清除选中的行
+				$.post(
+					"category.do?method=deleteCategory",	
+					"ids="+cid,
+					function(data){
+						if(1==data){
+							//提示窗口
+							$.messager.alert('消息','删除成功','info'); 
+							//重载行
+							$('#dg').datagrid('reload');
+						}else{
+							$.messager.alert('消息','删除失败,请联系管理员','warning'); 
+						}
+
+					},
+					"json"
+				);
+				
+
+					
+				}
+			},'-',{
+				iconCls: 'icon-save',
+				handler: function(){alert('修改按钮')}
+			}],
+			
+			//添加双击事件,弹出修改窗口
+			onDblClickRow:function(rowIndex, rowData){
+				$('#win2').window('open'); 
+				$('#win2').css({
+					"width":"400px",
+					"height":"200px"
+				}); 
+				//赋值
+				$("#cid2").val(rowData.cid);
+				$("#cname2").val(rowData.cname);
+				
+			}
+
+		}); 
+		
+		//保存按钮,添加提交事件
+		$("#but4add").click(function(){
+			$('#win').window('close');  
+			$("#form1").submit();
+			//刷新 为什么没用?
+			//$('#dg').datagrid('reload');
+		});
+		
+		//修改事件
+		$("#but4edit").click(function(){
+			$('#win2').window('close');  
+			$("#form2").submit();
+			//刷新
+			$('#dg').datagrid('reload');
+		});
+		
+	});
+	
+</script>
+
+</head>
+<body>
+	<!-- 第三种方式 -->
+	<table id="dg"></table>
+	<!-- 添加窗口 -->
+	<div id="win"
+		data-options="iconCls:'icon-save',modal:true,closed:true,closable:true"
+		class="easyui-window" title="添加商品分类"
+		style="width: 600px; height: 400px">   
+		<form action="category.do?method=addCategory" id="form1" method="post">
+		<input type="hidden" name="cid" id="cid">
+			<table>
+				<tr>
+					<td>分类名称</td>
+					<td><input type="text" name="cname" id="cname"></td>
+				</tr>
+				<tr><td colspan="2"><input type="button" id="but4add" value="增加"></td></tr>
+			</table>
+		</form>
+	</div>  
+	
+	<!-- 修改窗口 -->
+	<div id="win2" class="easyui-window" title="修改商品分类" style="width:400px;height:200px;"  data-options="iconCls:'icon-save',modal:true,closed:true">   
+		<form action="category.do?method=editCategory" id="form2" method="post">
+		<input type="hidden" name="cid" id="cid2">
+			<table>
+				<tr>
+					<td>分类名称</td>
+					<td><input type="text" name="cname" id="cname2"></td>
+				</tr>
+				<tr><td colspan="2"><input type="button" id="but4edit" value="修改"></td></tr>
+			</table>
+		</form>
+	</div>  
+
+</body>
+</html>

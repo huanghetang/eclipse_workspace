@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
+	http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd
+	http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.0.xsd">
+
+	<!-- 读取数据库配置文件 -->
+	<context:property-placeholder location="classpath:db.properties" />
+
+	<!-- 配置数据源 -->
+	<bean name="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
+		<property name="driverClassName" value="${jdbc.driverClass}"></property>
+		<property name="url" value="${jdbc.jdbcUrl}"></property>
+		<property name="username" value="${jdbc.user}"></property>
+		<property name="password" value="${jdbc.password}"></property>
+		<property name="maxActive" value="10"></property>
+		<property name="maxIdle" value="5"></property>
+	</bean>
+
+
+
+	<!-- mybatis工厂(session工厂是其他配置的前提) -->
+	<bean name="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<!-- 注入数据源 -->
+		<property name="dataSource" ref="dataSource" />
+		<!-- 注入sqlMapconfig主配置文件 -->
+		<property name="configLocation" value="classpath:sqlMapConfig.xml" />
+	</bean>
+	
+		<!-- 1. 直接用编码式dao开发 让dao extends sqlSessionDaoSupport
+				 在实现类当中注入 mybatis工厂(给sqlSessionDaoSupport注入) 
+				 然后使用父类的方法getSession()直接获取sessio使用-->
+	<bean name="userDao" class="vip.hht.dao.UserDaoImpl">
+		<property name="sqlSessionFactory" ref="sqlSessionFactory" />
+	</bean>
+	
+	
+	<!-- 2.使用mybatis接口开发,直接用mybatis和spring整合提供的mapper工厂类,注入session工厂和mapper接口类
+			 得到对应的mapper实现类(dao实现类),然后直接调用userMapper.xml对用的方法即可 -->
+	<bean name="userMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+		<property name="sqlSessionFactory" ref="sqlSessionFactory"/>
+		<property name="mapperInterface" value="vip.hht.mapper.UserMapper"/>
+	</bean>
+	
+	
+	
+	<!--3.第二部太繁琐升级后直接 配置mapper接口扫描 -->
+	<bean name="mapper" class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<!--自动扫描容器中可用的sqlSessionFactory 数据库会话工厂,不需要手动配置  -->
+		<!--直接给一个mapper接口包,会自动扫描包及其子包下所有的mapper类生成对应的mapper接口实现类 -->
+		<property name="basePackage" value="vip.hht.mapper"></property>
+	</bean>
+	
+	
+	<bean name="test" class="vip.hht.service.Test">
+		<property name="dao" ref="userDao"></property>
+	</bean>
+	
+
+
+
+</beans>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace：命名空间，用于隔离sql，还有一个很重要的作用，后面会讲 -->
+<mapper namespace="vip.hht.mapper.UserMapper">
+<insert id="addUser" parameterType="User">
+		<selectKey keyProperty="id" order="AFTER" resultType="Integer">
+			select last_insert_id()
+		</selectKey>
+	 	insert into user(
+	 		name
+	 	)values(
+	 		#{name}
+	 	)
+	</insert>
+
+<select id="findUserById" parameterType="Integer" resultType="User">
+	select * from user where id=#{vvv}
+
+</select>
+
+</mapper>

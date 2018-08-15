@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Insert title here</title>
+<meta http-equiv="Content-Language" content="zh-cn">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="themes/default/easyui.css">
+<link rel="stylesheet" type="text/css" href="themes/icon.css">
+
+<script type="text/javascript" src="js/jquery-1.8.0.min.js"></script>
+<script type="text/javascript" src="js/jquery.easyui.min.js"></script>
+<script type="text/javascript" src="js/easyui-lang-zh_CN.js"></script>
+
+
+
+<script type="text/javascript">
+$(function(){
+	$('#dg').datagrid({    
+	    url:'ad?methodName=adList',
+	    pagination:true,//分页
+	    pageList:[10,15,20],
+	    pageSize:10,//默认显示5条
+	    rownumbers:true,
+	    fit:true,//填充父元素
+		fitColumns:true,//列自适应当前行
+	    columns:[[  //列属性  
+	        {field:'aa',title:'ad_id',width:100,align:'center',checkbox:true},    
+	        {field:'ad_id',title:'ad_id',width:100,align:'center'},    
+	        {field:'ad_title',title:'ad_title',width:100,align:'center'},    
+	        {field:'ad_money',title:'ad_money',width:100,align:'center'},
+	        {field:'ad_content',title:'ad_content',width:100,align:'center'},
+	        {field:'ad_image',title:'ad_image',width:100,align:'center'} 
+	    ]],
+	    //工具栏
+	    toolbar: [{
+			iconCls: 'icon-add',
+			text:'添加',
+			handler: function(){
+				$('#win').window('open');
+			}
+		},'-',{
+			iconCls: 'icon-remove',
+			text:'删除',
+			handler: function(){
+				//获取所有选中行
+				var elements = $('#dg').datagrid('getSelections');
+				var ad_id ="";
+				//遍历,拼接cid字符串
+				$(elements).each(function(i){
+					if(i==0){
+						ad_id +=this.ad_id;
+					}else{
+						ad_id +=","+this.ad_id;
+					}
+				});
+				//ajax清除选中的行
+				$.post(
+					"ad?methodName=delete",	
+					"ad_id="+ad_id,
+					function(data){
+						if(1==data){
+							//提示窗口
+							$.messager.alert('消息','删除成功','info'); 
+							//重载行
+							$('#dg').datagrid('reload');
+						}else{
+							$.messager.alert('消息','删除失败,请联系管理员','warning'); 
+						}
+
+					},
+					"json"
+				);
+				
+				/* $.messager.confirm('确认','您确认想要删除记录吗？',function(r){
+					 var getCheckedrow = $("#dg").datagrid('getSelected');
+						 var  gg = getCheckedrow;
+					 $.post('ad.do?method=delete',{'ad_id':gg.ad_id},function(data){
+						 
+					 });
+					 location.reload();
+					 }) */
+					
+             }  
+		 
+		}]
+
+	});  
+	
+	
+});
+
+
+
+
+</script>
+
+</head>
+<body>
+<table id="dg"></table>  
+<div id="win"
+		data-options="iconCls:'icon-save',modal:true,closed:true,closable:true"
+		class="easyui-window" title="添加广告信息"
+		style="width: 600px; height: 400px">
+		<br>
+		<form id="categoryForm" method="post" action="ad?methodName=addAd" enctype="multipart/form-data">
+				<label for="name">广告标题</label> <input type="text" name="adname"/><br>
+				<label for="name">广告价格</label> <input type="text" name="adprice"/><br>
+				<label for="name">广告内容</label> <textarea name="adcontent" rows="5" cols="25"></textarea><br>
+				<label for="name">广告图片</label> <input type="file" name="adImage"/><br>
+			
+			<br>
+			<input  type="submit" value="提交" id="btn" />
+		</form>
+	</div>
+</body>
+</html>

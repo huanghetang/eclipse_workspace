@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>商品查询</title>
+<link rel="stylesheet" type="text/css" href="themes/default/easyui.css">
+<link rel="stylesheet" type="text/css" href="themes/icon.css">
+<script type="text/javascript" src="js/jquery-1.8.0.min.js"></script>
+<script type="text/javascript" src="js/jquery.easyui.min.js"></script>
+<script type="text/javascript" src="js/easyui-lang-zh_CN.js"></script>
+<script type="text/javascript" src="js/dateformat.js"></script>
+<script type="text/javascript">
+	$(function(){
+		$("#dgID").datagrid({
+			url:'productServlet?methodName=listProduct', // 通ajax完成数据库表的数据加载。
+            fit:true,				   // datagrid数据填充父容器
+            //fitColumns:true 
+            pagination:true,		   // 显示分页栏
+            rownumbers:true,
+            singleSelect:false,
+            pageList:[5,10,20],	       // 每页显示记录数
+			columns:[[ 
+					{field:'ck',checkbox:true},
+			  		{field:'pid',title:'商品ID',width:60,align:'center'}, 
+			  		{field:'pname',title:'商品名称',width:240,align:'center'},
+			  		{field:'market_price',title:'市场价格',width:100,align:'center'},
+			  		{field:'shop_price',title:'商城价格',width:100,align:'center'},
+			  		{field:'pimage',title:'图片路径',width:200,align:'center'},
+			  		{field:'pdate',title:'图片上传日期',width:100,align:'center',formatter:formatDatebox},
+			  		{field:'is_hot',title:'是否热门',width:60,align:'center'},
+			  		{field:'pdesc',title:'商品描述',width:240,align:'center'},
+			  		{field:'pflag',title:'是否下架',width:60,align:'center'},
+			  		{field:'cid',title:'商品分类ID',width:60,align:'center'},
+			  		{field:'pnum',title:'库存数量',width:60,align:'center'}
+			  		
+			  		]],
+			toolbar:[	 // 工具栏	
+			        {  	
+					  	iconCls: 'icon-add', 
+					  	text:'添加',
+					  	handler: function(){
+					  		$('#win1').window('open');  // open a window   
+						}  	
+				  	},'-',
+				  	{  		
+					 	iconCls: 'icon-edit',  		
+					  	text:'编辑',
+					  	handler: function(){
+					  		
+					  		var selectedRows = $('#dgID').datagrid('getSelections');  //获取选中行    
+					  		
+				    		if(selectedRows.length > 1){
+					    		$.messager.alert('消息','不能编辑多条数据','warning');
+					    		return;
+				    		}
+				  		
+				    		if(selectedRows.length < 1){
+					    		$.messager.alert('消息','未选中数据','warning');
+					    		return;
+				    		} 
+				    		
+					    	
+							$('#win2').window('open');  
+							 
+							//赋值
+							$("#pid1").val(selectedRows[0].pid);
+							$("#pname1").val(selectedRows[0].pname);
+							$("#is_hot1").val(selectedRows[0].it_hot);
+							$('#is_hot1').combobox('setValue',selectedRows[0].is_hot);
+							$("#market_price1").val(selectedRows[0].market_price);
+							$("#shop_price1").val(selectedRows[0].shop_price);
+							$("#pnum1").val(selectedRows[0].pnum);
+							$("#pdesc1").val(selectedRows[0].pdesc);
+							$('#cccid').combobox('setValue',selectedRows[0].cid);
+							
+						}  	
+					 },'-',
+					 {  		
+						  iconCls: 'icon-remove',  		
+						  text:'下架商品',
+						  handler: function(){
+							  var selectedRows = $('#dgID').datagrid('getSelections');  //获取选中行    
+					    	  if(selectedRows){
+					    		  //未选中数据
+					    		  if(selectedRows.length < 1){
+						    		  $.messager.alert('消息','未选中数据','warning');
+						    		  return;
+					    		  }
+					    	  }
+							  
+							  $.messager.confirm('确认','您确认要下架选中商品吗？',function(r){    
+								    if (r){    
+								    	//处理多行删除 singleSelect:false,
+								    	if(selectedRows){
+								    		//拼接字符
+								    		var str = "";
+								    		for(var i = 0; i < selectedRows.length;i++){
+								    			str = selectedRows[i].pid + "," + str;
+								    		}
+								    		
+								    		//处理格式
+								    		var pid = str.substring(0, str.length - 1);
+								    		//发送ajax请求
+								    		$.post("productServlet?methodName=deleteProduct",{"pid":pid},function(){
+								    			
+								    			$.messager.show({
+								    				title:'提示',
+								    				msg:'商品下架成功。',
+								    				timeout:3000,
+								    				showType:'slide'
+								    			});
+
+								    		});
+						                    //页面删除数据
+						                    $('#dgID').datagrid('clearSelections');
+						                  	//删除后重新加载下
+						                    $('#dgID').datagrid('reload');
+								    	}
+								    }    
+							  });  
+						  } 
+					 },'-',
+					 {
+						iconCls: 'icon-help',
+						handler: function(){
+							alert('帮助按钮')
+						}
+					 }
+					 ],
+					 
+			//添加双击事件,弹出修改窗口
+			onDblClickRow:function(rowIndex, rowData){
+				$('#win2').window('open'); 
+				//赋值
+				$("#pid1").val(rowData.pid);
+				$("#pname1").val(rowData.pname);
+				//$("#is_hot1").val(rowData.it_hot);
+				$('#is_hot1').combobox('setValue',rowData.is_hot);
+				$("#market_price1").val(rowData.market_price);
+				$("#shop_price1").val(rowData.shop_price);
+				$("#pnum1").val(rowData.pnum);
+				$("#pdesc1").val(rowData.pdesc);
+				$('#cccid').combobox('setValue',rowData.cid);
+				//$("#ccid").val(rowData.cid);
+			}
+		});
+		
+		//显示商品的分类
+	
+	  	$.post('categoryServlet?methodName=findCategory',{},function(data){
+		   	$(data).each(function(){
+	       		$("#ccid,#cccid").append("<option value='"+this.cid+"'>"+this.cname+"</option>");
+			});
+	  	});
+		
+	});
+	
+</script>
+</head>
+<body>
+	<table id="dgID"></table>  
+	
+	<div id="win1" class="easyui-window" title="添加商品" style="width:850px;height:400px"   
+        data-options="iconCls:'icon-save',modal:true,closed:true">   
+		<form id="userAction_save_do" name="Form1" action="productServlet?methodName=addProduct" method="post"enctype="multipart/form-data" >
+			&nbsp;
+			<table cellSpacing="1" cellPadding="5" width="100%" align="center" bgColor="#eeeeee" style="border: 1px solid #8ba7e3" border="0">
+				<tr>
+					<td class="ta_01" align="center" bgColor="#afd1f3" colSpan="4"
+						height="26">
+						<strong><STRONG>添加商品</STRONG>
+						</strong>
+					</td>
+				</tr>
+
+				<tr>
+					<td width="18%" align="center" bgColor="#f5fafe" class="ta_01">
+						商品名称：
+					</td>
+					<td class="ta_01" bgColor="#ffffff">
+						<input type="text" name="pname" value="" id="userAction_save_do_logonName" class="bg" name="pname"/>
+					</td>
+					<td width="18%" align="center" bgColor="#f5fafe" class="ta_01">
+						是否热门：
+					</td>
+					<td class="ta_01" bgColor="#ffffff">
+						<select name="is_hot">
+							<option value="1">是</option>
+							<option value="0">否</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td width="18%" align="center" bgColor="#f5fafe" class="ta_01" >
+						市场价格：
+					</td>
+					<td class="ta_01" bgColor="#ffffff">
+						<input type="text" name="market_price" value="" id="userAction_save_do_logonName" class="bg" name="market_price"/>
+					</td>
+					<td width="18%" align="center" bgColor="#f5fafe" class="ta_01">
+						商城价格：
+					</td>
+					<td class="ta_01" bgColor="#ffffff">
+						<input type="text" name="shop_price" value="" id="userAction_save_do_logonName" class="bg"name ="shop_price"/>
+					</td>
+				</tr>
+				<tr>
+					<td width="18%" align="center" bgColor="#f5fafe" class="ta_01">
+						商品图片：
+					</td>
+					<td class="ta_01" bgColor="#ffffff" >
+						<input type="file" name ="pimage"/>
+					</td>
+					<td width="18%" align="center" bgColor="#f5fafe" class="ta_01">
+						商品数目：
+					</td>
+					<td class="ta_01" bgColor="#ffffff" >
+						<input type="test" name ="pnum"/>
+					</td>
+				</tr>
+				<tr>
+					<td width="18%" align="center" bgColor="#f5fafe" class="ta_01">
+						所属分类：
+					</td>
+					<td class="ta_01" bgColor="#ffffff" colspan="3">
+						<select name="cid" id="ccid">
+							<option value="0">请选择分类</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td width="18%" align="center" bgColor="#f5fafe" class="ta_01">
+						商品描述：
+					</td>
+					<td class="ta_01" bgColor="#ffffff" colspan="3">
+						<textarea name="pdesc" rows="5" cols="30" name="pdesc"></textarea>
+					</td>
+				</tr>
+				<tr>
+					<td class="ta_01" style="WIDTH: 100%" align="center"
+						bgColor="#f5fafe" colSpan="4">
+						<button id="btn1" type="submit" id="userAction_save_do_submit" value="确定" class="button_ok">
+							&#30830;&#23450;
+						</button>
+
+						<FONT face="宋体">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</FONT>
+						<button type="reset" value="重置" class="button_cancel">&#37325;&#32622;</button>
+					</td>
+				</tr>
+			</table>
+		</form>
+	</div> 
+	
+	
+	<div id="win2" class="easyui-window" title="修改商品" style="width:850px;height:400px"   
+        data-options="iconCls:'icon-save',modal:true,closed:true">   
+		<form id="userAction_save_do" name="Form2" action="productServlet?methodName=updateProduct" method="post" enctype="multipart/form-data">
+			<input type="hidden" name="pid" value="" id="pid1" class="bg" />
+			&nbsp;
+			<table cellSpacing="1" cellPadding="5" width="100%" align="center" bgColor="#eeeeee" style="border: 1px solid #8ba7e3" border="0">
+				<tr>
+					<td class="ta_01" align="center" bgColor="#afd1f3" colSpan="4"
+						height="26">
+						<strong><STRONG>修改商品</STRONG>
+						</strong>
+					</td>
+				</tr>
+
+				<tr>
+					<td width="18%" align="center" bgColor="#f5fafe" class="ta_01">
+						商品名称：
+					</td>
+					<td class="ta_01" bgColor="#ffffff">
+						<input type="text" name="pname" value="" id="pname1" class="bg" />
+					</td>
+					<td width="18%" align="center" bgColor="#f5fafe" class="ta_01">
+						是否热门：
+					</td>
+					<td class="ta_01" bgColor="#ffffff">
+						<select name="is_hot" id="is_hot1"class="easyui-combobox">
+						
+							<option value="1">是</option>
+							<option value="0">否</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td width="18%" align="center" bgColor="#f5fafe" class="ta_01" >
+						市场价格：
+					</td>
+					<td class="ta_01" bgColor="#ffffff">
+						<input type="text" name="market_price"  id="market_price1" class="bg"/>
+					</td>
+					<td width="18%" align="center" bgColor="#f5fafe" class="ta_01">
+						商城价格：
+					</td>
+					<td class="ta_01" bgColor="#ffffff">
+						<input type="text" name="shop_price" value="" id="shop_price1" class="bg"/>
+					</td>
+				</tr>
+				<tr>
+					<td width="18%" align="center" bgColor="#f5fafe" class="ta_01">
+						商城数目：
+					</td>
+					<td class="ta_01" bgColor="#ffffff">
+						<input type="text" name="pnum" value="" id="pnum1" class="bg"/>
+					</td>
+				</tr>
+				<tr>
+					<td width="18%" align="center" bgColor="#f5fafe" class="ta_01">
+						所属分类：
+					</td>
+				<td class="ta_01" bgColor="#ffffff">
+						<select name="cid" id="cccid"class="easyui-combobox">
+							<option value="0">请选择分类</option>
+							<option value="1">手机数码</option>
+							<option value="2">运动户外</option>
+							<option value="3">电脑办公</option>
+							<option value="4">家具家居</option>
+							<option value="5">鞋靴箱包</option>
+							<option value="6">图书音像</option>
+							<option value="7">母婴孕婴</option>
+							<option value="8">汽车用品</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td width="18%" align="center" bgColor="#f5fafe" class="ta_01">
+						商品描述：
+					</td>
+					<td class="ta_01" bgColor="#ffffff" colspan="3">
+						<textarea name="pdesc" rows="5" cols="30" id="pdesc1"></textarea>
+					</td>
+				</tr>
+				<tr>
+					<td class="ta_01" style="WIDTH: 100%" align="center"
+						bgColor="#f5fafe" colSpan="4">
+						<button id="btn2" type="submit" id="userAction_save_do_submit" value="确定" class="button_ok">
+							&#30830;&#23450;
+						</button>
+
+						<FONT face="宋体">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</FONT>
+						<button type="reset" value="重置" class="button_cancel">&#37325;&#32622;</button>
+
+					
+					</td>
+				</tr>
+			</table>
+		</form>
+	</div>  
+</body>
+</html>

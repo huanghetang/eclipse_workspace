@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Insert title here</title>
+<meta http-equiv="Content-Language" content="zh-cn">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="themes/default/easyui.css">
+<link rel="stylesheet" type="text/css" href="themes/icon.css">
+
+<script type="text/javascript" src="js/jquery-1.8.0.min.js"></script>
+<script type="text/javascript" src="js/jquery.easyui.min.js"></script>
+<script type="text/javascript" src="js/easyui-lang-zh_CN.js"></script>
+<script type="text/javascript" src="js/dateformat.js"></script>
+
+
+<script type="text/javascript">
+$(function(){
+	$('#dg').datagrid({    
+	   url:'ad?methodName=imgList', 
+	    pagination:true,//分页
+	    pageList:[10,15,20],
+	    pageSize:10,//默认显示5条
+	    rownumbers:true,
+	    fit:true,//填充父元素
+		fitColumns:true,//列自适应当前行
+	    columns:[[  //列属性  
+	        {field:'aa',title:'id',width:100,align:'center',checkbox:true},    
+	        {field:'id',title:'id',width:100,align:'center'},    
+	        {field:'title',title:'title',width:100,align:'center'},    
+	        {field:'image',title:'image',width:100,align:'center'},
+	        {field:'createtime',title:'createtime',width:100,align:'center',formatter:formatDatebox}
+	    ]],
+	    //工具栏
+	    toolbar: [{
+			iconCls: 'icon-add',
+			text:'添加',
+			handler: function(){
+				$('#win').window('open');
+			}
+		},'-',{
+			iconCls: 'icon-remove',
+			text:'删除',
+			handler: function(){
+				//获取所有选中行
+				var elements = $('#dg').datagrid('getSelections');
+				var id ="";
+				//遍历,拼接cid字符串
+				$(elements).each(function(i){
+					if(i==0){
+						id +=this.id;
+					}else{
+						id +=","+this.id;
+					}
+				});
+				//ajax清除选中的行
+				$.post(
+					"ad?methodName=delImg",	
+					"id="+id,
+					function(data){
+						if(1==data){
+							//提示窗口
+							$.messager.alert('消息','删除成功','info'); 
+							//重载行
+							$('#dg').datagrid('reload');
+						}else{
+							$.messager.alert('消息','删除失败,请联系管理员','warning'); 
+						}
+
+					},
+					"json"
+				);
+				
+				
+					
+             }  
+		 
+		}]
+
+	});  
+	
+	
+});
+
+
+
+
+</script>
+
+</head>
+<body>
+<table id="dg"></table>  
+<div id="win"
+		data-options="iconCls:'icon-save',modal:true,closed:true,closable:true"
+		class="easyui-window" title="添加广告信息"
+		style="width: 600px; height: 400px">
+		<br>
+		<form id="categoryForm" method="post" action="ad?methodName=addImg" enctype="multipart/form-data">
+			
+				<label for="name">图片标题</label> <input type="text" name="img_title"/><br>
+				<label for="name">上传图片</label> <input type="file" name="img_Image"/><br>
+			<br>
+			<input  type="submit" value="提交" id="btn" />
+		</form>
+	</div>
+</body>
+</html>

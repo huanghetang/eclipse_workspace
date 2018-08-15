@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.springframework.org/schema/beans" xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.2.xsd ">
+
+<bean name="user" class="vip.hht.pojo.User" scope="prototype" init-method="init" destroy-method="destroyMethod">
+	<property name="name" value="景甜"/>
+	<property name="age" value="18"/>
+</bean>
+
+
+	<bean name="user1" class="vip.hht.pojo.User">
+		<property name="beauties">
+			<array>
+				<value>景甜</value>
+				<value>迪丽热巴</value>
+				<value>古力娜扎</value>
+			</array>
+		</property>
+	
+	</bean>
+
+
+</beans>
